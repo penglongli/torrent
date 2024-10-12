@@ -98,7 +98,7 @@ func (cn *peerConnMsgWriter) run(keepAliveTimeout time.Duration) {
 		var err error
 		for frontBuf.Len() != 0 {
 			// Limit write size for WebRTC. See https://github.com/pion/datachannel/issues/59.
-			next := frontBuf.Next(1<<24 - 1)
+			next := frontBuf.Next(1<<32 - 1)
 			var n int
 			n, err = cn.w.Write(next)
 			if err == nil && n != len(next) {
