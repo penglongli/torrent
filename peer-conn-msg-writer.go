@@ -95,26 +95,33 @@ func (cn *peerConnMsgWriter) run(keepAliveTimeout time.Duration) {
 		if frontBuf.Len() == 0 {
 			panic("expected non-empty front buffer")
 		}
-		if _, err := cn.w.Write(frontBuf.Bytes()); err != nil {
-			cn.logger.WithDefaultLevel(log.Debug).Printf("error writing: %v", err)
+
+		var err error
+		for frontBuf.Len() != 0 {
+			var n int
+			n, err = cn.w.Write(frontBuf.Bytes())
+			if err != nil {
+				break
+			}
 		}
-		// var err error
-		// for frontBuf.Len() != 0 {
-		// 	// Limit write size for WebRTC. See https://github.com/pion/datachannel/issues/59.
-		// 	next := frontBuf.Next(1<<32 - 1)
-		// 	var n int
-		// 	n, err = cn.w.Write(next)
-		// 	if err == nil && n != len(next) {
-		// 		panic("expected full write")
-		// 	}
-		// 	if err != nil {
-		// 		break
-		// 	}
-		// }
-		// if err != nil {
-		// 	cn.logger.WithDefaultLevel(log.Debug).Printf("error writing: %v", err)
-		// 	return
-		// }
+		//var err error
+		//for frontBuf.Len() != 0 {
+		//	// Limit write size for WebRTC. See https://github.com/pion/datachannel/issues/59.
+		//	next := frontBuf.Next(1<<32 - 1)
+		//	var n int
+		//	n, err = cn.w.Write(next)
+		//	if err == nil && n != len(next) {
+		//		panic("expected full write")
+		//	}
+		//	if err != nil {
+		//		break
+		//	}
+		//}
+		if err != nil {
+			cn.logger.WithDefaultLevel(log.Debug).Printf("error writing: %v", err)
+			return
+		}
+		
 		lastWrite = time.Now()
 		keepAliveTimer.Reset(keepAliveTimeout)
 	}
