@@ -98,8 +98,7 @@ func (cn *peerConnMsgWriter) run(keepAliveTimeout time.Duration) {
 
 		var err error
 		for frontBuf.Len() != 0 {
-			var n int
-			n, err = cn.w.Write(frontBuf.Bytes())
+			_, err = cn.w.Write(frontBuf.Bytes())
 			if err != nil {
 				break
 			}
